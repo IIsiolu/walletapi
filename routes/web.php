@@ -10,6 +10,9 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+$router->get('/', function(){
+    return app()->environment();
+});
 
 $router->group(['prefix' => 'api/v1'], function() use($router){
     $router->get('/wallet', 'WalletController@getWallet');
