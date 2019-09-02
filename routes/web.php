@@ -15,7 +15,7 @@ $router->get('/', function(){
 });
 
 $router->group(['prefix' => 'api/v1'], function() use($router){
-    $router->get('/wallet', 'WalletController@getWallet');
+    $router->get('/wallet/{wallet_id}', 'WalletController@getWallet');
     $router->post('/wallet', 'WalletController@createWallet');
-    $router->put('/wallet/{id}', 'WalletController@updateWallet');
+    $router->post('/wallet/checkrestriction', 'WalletController@set_wallet_channel');
 });
