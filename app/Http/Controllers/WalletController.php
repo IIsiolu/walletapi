@@ -68,7 +68,7 @@ class WalletController extends BaseController{
     array_shift($storedChannels);
     array_pop($storedChannels);
     array_pop($storedChannels);
-    print_r($storedChannels);
+    // print_r($storedChannels);
 
     if(in_array($channel, $storedChannels)){
       if($wallet_details[0][$channel] == 0){
@@ -77,8 +77,6 @@ class WalletController extends BaseController{
       return 4;
     }
     return 2;
-
-    
   }
 
  /**
