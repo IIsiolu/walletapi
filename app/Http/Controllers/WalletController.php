@@ -17,8 +17,8 @@ class WalletController extends BaseController{
 
     // user input
     $this->validate($request, [
-      'wallet_id' => 'bail|string|required|min:8|max:8',
-      'channel' => 'string|required',
+      'wallet_id' => 'required|string|min:8|max:8',
+      'channel' => 'required|string',
     ]);
     
     $wallet_details = $this->getWallet($request->wallet_id);
@@ -55,7 +55,7 @@ class WalletController extends BaseController{
    * @return void
    */
   public function getWallet($wallet_id){
-      $wallet = Wallet::where('wallet_id', $wallet_id)->get();
+      $wallet = Wallet::where('wallet_id', $wallet_id)->first();
       // print_r($wallet);
       $json = json_encode($wallet);
       $phpArray = json_decode($json, true);
@@ -64,14 +64,19 @@ class WalletController extends BaseController{
 
   public function check_for_restricted_wallet($wallet_details, $channel){
 
-    $storedChannels = array_keys($wallet_details[0]);
-    array_shift($storedChannels);
-    array_pop($storedChannels);
-    array_pop($storedChannels);
-    // print_r($storedChannels);
-
-    if(in_array($channel, $storedChannels)){
-      if($wallet_details[0][$channel] == 0){
+    //print_r($wallet_details);
+    // $storedChannels = array_keys($wallet_details);
+    array_shift($wallet_details);
+    array_pop($wallet_details);
+    array_pop($wallet_details);
+    // print_r($wallet_details);
+    
+    
+   // array_key_exists('errcode', $phpArray);
+   // in_array($channel, $channels)
+    // $channels = ['pos', 'web', 'android', 'android_pos'];
+    if(array_key_exists($channel, $wallet_details)){
+      if($wallet_details[$channel] == 0){
         return 9;
       }
       return 4;
@@ -85,37 +90,53 @@ class WalletController extends BaseController{
  * @param  \Illuminate\Http\Request  $request
  * @return void
  */
- public function createWallet(Request $request){
+  public function createWallet(Request $request){
 
-  // user input
-  $this->validate($request, [
-    'wallet_id' => 'bail|string|required|min:8|max:8',
-    'pos' => 'int|required|max:1',
-    'web' => 'int|required|max:1',
-    'android' => 'int|required|max:1',
-    'android_pos' => 'int|required|max:1'
-  ]);
-
-  // check if wallet id already exists in database
-  $wallet_id = $request->wallet_id;
-  $checkwallet_id = Wallet::where('wallet_id', $wallet_id)->exists();
-  if($checkwallet_id === true){
-    return response()->json([
-      'msg' => 'wallet_id already exists.',
+    // user input
+    $this->validate($request, [
+      'wallet_id' => 'required|string|min:8|max:8',
+      'pos' => 'required|int|max:1',
+      'web' => 'required|int|max:1',
+      'android' => 'required|int|max:1',
+      'android_pos' => 'required|int|max:1',
+      'update' => 'required|boolean'
     ]);
-  }
 
-   // store to database
-   $wallet = new Wallet();
-   $wallet->wallet_id = $wallet_id;
-   $wallet->pos = $request->pos;
-   $wallet->web = $request->web;
-   $wallet->android = $request->android;
-   $wallet->android_pos = $request->android_pos;
-   $wallet->save();
-   
-   // return value
-   return response()->json($wallet, 200);
+    $update = $request->update;
+    if($update){
+      $wallet_id = $request->wallet_id;
+      $wallet_update = Wallet::where('wallet_id', $wallet_id)->first();
+      $wallet_update->wallet_id = $wallet_id;
+      $wallet_update->pos = $request->pos;
+      $wallet_update->web = $request->web;
+      $wallet_update->android = $request->android;
+      $wallet_update->android_pos = $request->android_pos;
+      $wallet_update->save();
+
+      // return value
+      return response()->json($wallet_update, 200);
+    }else{
+      // check if wallet id already exists in database
+      $wallet_id = $request->wallet_id;
+      $checkwallet_id = Wallet::where('wallet_id', $wallet_id)->exists();
+      if($checkwallet_id === true){
+        return response()->json([
+          'msg' => 'wallet_id already exists.',
+        ]);
+      }
+
+      // store to database
+      $wallet = new Wallet();
+      $wallet->wallet_id = $wallet_id;
+      $wallet->pos = $request->pos;
+      $wallet->web = $request->web;
+      $wallet->android = $request->android;
+      $wallet->android_pos = $request->android_pos;
+      $wallet->save();
+      
+      // return value
+      return response()->json($wallet, 200);
+    }
   }
  
 

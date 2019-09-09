@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Wallet extends Migration
+class AddPrimaryId extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,9 @@ class Wallet extends Migration
      */
     public function up()
     {
-        Schema::create('wallet', function (Blueprint $table){
-            $table->string('wallet_id'); 
-            $table->integer('pos');
-            $table->integer('web');
-            $table->integer('android');
-            $table->integer('android_pos');
-            $table->timestamps();
+        //
+        Schema::table('wallet', function (Blueprint $table) {
+            $table->bigIncrements('id');
         });
     }
 
@@ -30,6 +26,9 @@ class Wallet extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wallet');
+        //
+        Schema::table('wallet', function (Blueprint $table) {
+            $table->dropColumn('id');
+        });
     }
 }
